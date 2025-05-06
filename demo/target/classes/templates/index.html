@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista dei Libri</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <h1>Lista dei Libri</h1>
+
+    <!-- Form per aggiungere un libro -->
+    <form id="aggiungi-libro">
+        <label for="titolo">Titolo:</label>
+        <input type="text" id="titolo" required><br>
+        <label for="autore">Autore:</label>
+        <input type="text" id="autore" required><br>
+        <label for="genere">Genere:</label>
+        <input type="text" id="genere" required><br>
+        <label for="anno">Anno:</label>
+        <input type="number" id="anno" required><br>
+        <button type="submit">Aggiungi Libro</button>
+    </form>
+
+    <h2>Tabella Libri</h2>
+    <table id="table-libri">
+        <thead>
+            <tr>
+                <th>Titolo</th>
+                <th>Autore</th>
+                <th>Genere</th>
+                <th>Anno</th>
+            </tr>
+        </thead>
+        <tbody id="libri-tbody">
+            <!-- I dati dei libri saranno inseriti qui -->
+        </tbody>
+    </table>
+
+    <script>
+        // Funzione per caricare i libri dal file CSV
+        function caricaLibri() {
+            $.get('/libri', function(data) {
+                var tableBody = $('#libri-tbody');
+                tableBody.empty(); // Pulisce la tabella prima di aggiungere nuovi dati
+                data.forEach(function(libro) {
+                    tableBody.append(
+                        '<tr><td>' + libro.titolo + '</td><td>' + libro.autore + '</td><td>' + libro.genere + '</td><td>' + libro.anno + '</td></tr>'
+                    );
+                });
+            });
+        }
+
+        // Carica i libri quando la pagina viene caricata
+        $(document).ready(function() {
+            caricaLibri();
+        });
+
+        // Funzione per aggiungere un nuovo libro
+        $('#aggiungi-libro').submit(function(event) {
+            event.preventDefault(); // Previene l'invio predefinito del form
+
+            var nuovoLibro = {
+                titolo: $('#titolo').val(),
+                autore: $('#autore').val(),
+                genere: $('#genere').val(),
+                anno: $('#anno').val()
+            };
+
+            // Invia i dati del nuovo libro al backend per essere aggiunto al CSV
+            $.post('/libri', nuovoLibro, function() {
+                // Ricarica i libri dopo aver aggiunto un nuovo libro
+                caricaLibri();
+            });
+
+            // Resetta il modulo
+            $('#aggiungi-libro')[0].reset();
+        });
+    </script>
+
+</body>
+</html>
+
